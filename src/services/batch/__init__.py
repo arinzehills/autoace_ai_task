@@ -9,10 +9,10 @@ from src.services.batch.models import BatchResult, FileResult
 from src.services.batch.runner import run_batch as _run_batch
 
 
-def run_batch(input_path: str) -> BatchResult:
+def run_batch(input_path: str, on_file_complete=None) -> BatchResult:
     """Entry point — accepts a folder path or ZIP archive."""
     with resolve_input(input_path) as folder:
-        return _run_batch(folder)
+        return _run_batch(folder, on_file_complete=on_file_complete)
 
 
 __all__ = ["run_batch", "BatchResult", "FileResult"]

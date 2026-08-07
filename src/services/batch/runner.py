@@ -3,7 +3,7 @@ Batch runner — orchestrates input resolution, validation, processing, and outp
 Each concern is delegated to its own module.
 """
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from src.common.utils import CostTracker
 from src.core.models.analysis import AudioAnalysisResult
@@ -18,7 +18,7 @@ from src.services.validation_service import (
 )
 
 
-def run_batch(folder: Path) -> BatchResult:
+def run_batch(folder: Path, on_file_complete: Optional[Callable[[int, int, FileResult], None]] = None) -> BatchResult:
     manifest = find_manifest(folder)
     validation, files_to_process = _resolve_files(folder, manifest)
 
@@ -28,9 +28,11 @@ def run_batch(folder: Path) -> BatchResult:
     results: list[FileResult] = []
     cost_tracker = CostTracker()
 
-    for audio_path in files_to_process:
+    for idx, audio_path in enumerate(files_to_process):
         file_result = _process_file(audio_path)
         results.append(file_result)
+        if on_file_complete:
+            on_file_complete(idx + 1, len(files_to_process), file_result)
         if file_result.analysis:
             cost_tracker.add(
                 file_result.analysis.cost_usd or 0.0,
