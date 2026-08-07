@@ -92,8 +92,10 @@ def extract_acoustic_features(audio_path: str) -> dict:
     rms_peak_to_mean = round(float(rms_max / (rms_mean + 1e-8)), 2)
     impulse_frames = int(np.sum(rms > rms_mean + 3 * rms_std))  # frames >3 sigma above mean
 
-    # Spectral flatness in non-speech segments as noise-type indicator
+    # Spectral flatness in silence (broadband noise = high) and in speech (static in speech = high)
     flatness_in_silence = float(np.mean(spectral_flatness[is_silent])) if np.any(is_silent) else 0.0
+    n_sf = min(len(spectral_flatness), len(is_speech))
+    flatness_in_speech = float(np.mean(spectral_flatness[:n_sf][is_speech[:n_sf]])) if np.any(is_speech) else 0.0
 
     return {
         "duration_seconds": round(duration, 2),
@@ -115,6 +117,7 @@ def extract_acoustic_features(audio_path: str) -> dict:
         "spectral_centroid_mean_hz": round(float(np.mean(spectral_centroid)), 1),
         "spectral_flatness_mean": round(float(np.mean(spectral_flatness)), 5),
         "spectral_flatness_in_silence": round(flatness_in_silence, 5),
+        "spectral_flatness_in_speech": round(flatness_in_speech, 5),
         "zero_crossing_rate_mean": round(float(np.mean(zcr)), 5),
         "speaker_overlap_score": round(overlap_score, 3),        "rms_kurtosis": round(rms_kurtosis, 2),
         "rms_peak_to_mean": rms_peak_to_mean,

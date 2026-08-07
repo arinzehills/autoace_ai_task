@@ -41,12 +41,14 @@ ACOUSTIC FEATURES:
 
 EMOTIONAL TONE DETECTION GUIDE — read carefully before classifying:
 - Base tone on TRANSCRIPT CONTENT first, acoustic features second.
-- upset signals: repeated "Hello?", "Are you a real person?", short angry bursts, complaints with anger, not getting acknowledgement despite repeated attempts.
-- frustrated signals: "why is this taking so long?", sighing, "I can't believe this", impatient but not explosive.
-- distressed signals: crying, panicking, "I don't know what to do", highly emotional overwhelm.
-- satisfied signals: "thank you so much", "that's great", "perfect", politely completing a transaction successfully, customer whose needs are being met and who sounds pleased — even if the call is routine. A customer happily booking an appointment = satisfied, not neutral.
-- neutral signals: flat matter-of-fact exchange, no positive or negative coloring, information-only calls with no emotional resolution.
-- If the call is in a non-English language, classify based on vocal patterns (pitch, rhythm, repetition) and any translatable words. Assume standard conversational tone unless signals suggest otherwise.
+- upset signals: customer clearly not getting a response and escalating — "Hello? Hello? Hello?" repeated 3+ times means the customer IS upset trying to get attention (not neutral), "Are you a real person?", short terse bursts, agitated.
+- frustrated signals: "why is this taking so long?", complaints without explosive anger, impatient sighing.
+- distressed signals: crying, panic, "I don't know what to do", extreme overwhelm.
+- satisfied signals: customer whose request is being actively fulfilled — booking an appointment cooperatively, completing a service request, politely engaging while needs are being met. Cooperative + successful outcome = satisfied. NOT neutral even if words are routine.
+- neutral signals: pure information exchange with no clear emotional outcome — call ends incomplete or unresolved with no positive/negative signal.
+- Repeated single-word utterances like "Hello? Hello?" from ONE person = upset, NOT speaker overlap.
+- If the call switches languages mid-call, do NOT interpret transcription noise as emotional signals.
+- long_silence_present: consider the call duration — a 7s pause in a 3-minute call may be an agent looking something up and is normal. Only flag true for silence that seems like dead air or technical failure relative to the call length.
 - Use acoustic pitch_std_hz and rms_mean as SUPPORTING signals only.
 
 Return a JSON object with exactly these fields and enum values:
@@ -70,10 +72,11 @@ Definitions:
 - distressed: overwhelmed, panicked, crying, highly emotional
 - emotional_intensity low=subtle/mild, medium=clear and sustained, high=strong/escalated
 - background_noise_severity none=no noise, low=audible but no interference, medium=occasional interference, high=materially impairs conversation
-- background_noise_present: use `has_background_noise_signal` AND `non_speech_noise_rms` AND `spectral_flatness_in_silence`. If non_speech_noise_rms > 0.002 OR has_background_noise_signal=true, likely noise is present. High spectral_flatness_in_silence (>0.05) suggests static or broadband noise. clipping_detected=true with high clipping_ratio may indicate static bursts.
-- speaker_overlap_present: use `speaker_overlap_score`. Score > 0.4 strongly suggests overlap. Score 0.25-0.4 is likely overlap. Below 0.2 is probably no overlap. Also check transcript for garbled/confused segments.
-- long_silence_present: use `long_silence_max_seconds`. Flag as true only if > 5 seconds of continuous dead air — shorter pauses are normal turn-taking.
-- audio_quality: judge ONLY on technical signal issues (distortion, clipping, echo, static, muffling, packet loss). Do NOT count background noise as impaired quality. clipping_ratio > 0.01 = severely impaired. clipping_ratio 0.001-0.01 = slightly impaired."""
+- background_noise_present: check `non_speech_noise_rms` (> 0.001 = likely noise present), `has_background_noise_signal`, AND `spectral_flatness_in_silence` (> 0.05 = broadband/static noise in quiet periods) AND `spectral_flatness_in_speech` (> 0.03 = noise embedded in speech, e.g. static). `rms_kurtosis` > 10 often indicates impulsive background sounds (TV, traffic). Flag true if any combination suggests environmental noise.
+- speaker_overlap_present: acoustic features cannot reliably detect overlap. Instead, look at the TRANSCRIPT for: garbled/nonsensical text that suggests two voices were recorded simultaneously, confusing mid-sentence switches, or text that looks like two voices blended (e.g. "12th of the 13th"). Also look at `rms_kurtosis` — very high values (>10) with background noise may indicate overlapping audio sources. Flag true if transcript shows confusion consistent with simultaneous speech.
+- long_silence_present: use `long_silence_max_seconds`. Flag as true only if there is > 5 seconds of dead air that would feel unusually long relative to the total call duration. Brief pauses for typing or thinking are normal and should NOT be flagged.
+- audio_quality: judge ONLY on technical signal issues (distortion, clipping, echo, static, muffling, packet loss). Do NOT count background noise as impaired quality. `clipping_ratio` > 0.01 = severely impaired. `clipping_ratio` 0.001-0.01 = slightly impaired. Otherwise clear.
+- If the call involves a mid-call language switch (agent switches to Spanish or another language at customer request), do NOT interpret transcription artifacts from non-English speech as emotional frustration. Judge tone on behavioral signals only."""
 
 
 def classify(transcript: str, acoustic_features: dict) -> tuple[dict, float]:
