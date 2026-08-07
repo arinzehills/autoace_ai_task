@@ -4,9 +4,9 @@ A production-grade system for classifying emotional tone and detecting backgroun
 
 ## Live Dashboard
 
-**URL:** *(add your Streamlit URL here)*  
+**URL:** https://autoaceaitask-arinzehills.streamlit.app  
 **Username:** autoace  
-**Password:** *(provided separately)*
+**Password:** *(provided via your inbox and mail)*
 
 ## What It Does
 
