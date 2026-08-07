@@ -54,7 +54,7 @@ def _render_login() -> None:
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
 def _render_dashboard() -> None:
-    st.title("🎙️ArinzeHills AutoAce Audio Analyzer")
+    st.title("🎙️ArinzeHillz AutoAce Audio Analyzer")
     with st.sidebar:
         st.markdown(f"Logged in as **{DASHBOARD_USERNAME}**")
         if st.button("Log out"):
