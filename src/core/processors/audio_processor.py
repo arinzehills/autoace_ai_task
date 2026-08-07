@@ -28,7 +28,6 @@ def analyze(audio_path: str) -> AudioAnalysisResult:
 
     processing_seconds = round(time.time() - start, 2)
     duration = acoustic.get("duration_seconds", 0)
-    cost_per_minute = (cost_usd / duration * 60) if duration > 0 else 0
 
     return AudioAnalysisResult(
         emotional_tone=result_dict.get("emotional_tone", "neutral"),

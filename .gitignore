@@ -9,3 +9,5 @@ data/labeled/*.m4a
 data/labeled/labels.csv
 *.egg-info/
 .DS_Store
+*.zip
+results/
