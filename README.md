@@ -26,6 +26,15 @@ For each audio clip, the system returns a structured JSON result:
 }
 ```
 
+## Data Handling
+
+**Audio confidentiality:** This system is designed to keep production call audio off unapproved public services.
+
+- **Transcription (Whisper)** runs entirely locally — audio never leaves the machine.
+- **Classification (GPT-4o-mini)** receives only the *text transcript*, not the audio file.
+- **Local batch runner** (`python -m src.services.batch`) has zero external data exposure and is the recommended path for real production audio.
+- **Hosted Streamlit dashboard** — uploaded ZIPs are processed ephemerally on Streamlit Community Cloud infrastructure. This deployment is suitable for evaluation with non-sensitive test audio. For production use with real customer calls, run the batch runner locally or self-host the dashboard.
+
 ## Architecture
 
 ```

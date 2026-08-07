@@ -49,7 +49,7 @@ EMOTIONAL TONE DETECTION GUIDE — read carefully before classifying:
 - Repeated single-word utterances like "Hello? Hello?" from ONE person = upset, NOT speaker overlap.
 - If the call switches languages mid-call, do NOT interpret transcription noise as emotional signals.
 - long_silence_present: consider the call duration — a 7s pause in a 3-minute call may be an agent looking something up and is normal. Only flag true for silence that seems like dead air or technical failure relative to the call length.
-- Use acoustic pitch_std_hz and rms_mean as SUPPORTING signals only.
+- Use acoustic pitch_std_hz, rms_mean, and speaking_rate_wpm as SUPPORTING signals only. A very high speaking_rate_wpm (> 180 wpm) is a supporting signal for agitation — but only when transcript content also shows frustration or upset cues. A low rate (< 100 wpm) with long pauses may indicate distress or confusion.
 
 Return a JSON object with exactly these fields and enum values:
 {{

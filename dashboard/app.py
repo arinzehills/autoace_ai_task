@@ -89,6 +89,7 @@ def _run_and_store(uploaded_file) -> None:
         tmp.write(uploaded_file.read())
         tmp_path = tmp.name
 
+    validation_area = st.empty()
     progress_bar = st.progress(0, text="Starting…")
     status_area = st.empty()
     log_lines: list[str] = []
@@ -106,6 +107,19 @@ def _run_and_store(uploaded_file) -> None:
 
     batch = run_batch(tmp_path, on_file_complete=on_progress)
 
+    # Show validation issues prominently
+    if batch.validation:
+        warnings = []
+        if batch.validation.missing_files:
+            for name in batch.validation.missing_files:
+                warnings.append(f"**{name}** — listed in manifest but not found in ZIP")
+        if batch.validation.unmatched_files:
+            for name in batch.validation.unmatched_files:
+                warnings.append(f"**{name}** — found in ZIP but not listed in manifest (skipped)")
+        if warnings:
+            with validation_area.container():
+                st.warning("**Manifest validation issues found:**\n\n" + "\n\n".join(f"- {w}" for w in warnings))
+
     progress_bar.progress(1.0, text="Complete!")
     status_area.empty()
     st.session_state["batch_result"] = batch
@@ -116,6 +130,19 @@ def _run_and_store(uploaded_file) -> None:
 def _render_results(batch: BatchResult) -> None:
     st.markdown("---")
     st.subheader("Results")
+
+    # Validation summary
+    if batch.validation:
+        if batch.validation.missing_files:
+            st.error(
+                f"**{len(batch.validation.missing_files)} file(s) missing from ZIP:** "
+                + ", ".join(batch.validation.missing_files)
+            )
+        if batch.validation.unmatched_files:
+            st.warning(
+                f"**{len(batch.validation.unmatched_files)} file(s) not in manifest (skipped):** "
+                + ", ".join(batch.validation.unmatched_files)
+            )
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total files", batch.total)
