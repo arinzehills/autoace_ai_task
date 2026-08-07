@@ -1,0 +1,20 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+CLASSIFIER_MODEL = os.getenv("CLASSIFIER_MODEL", "gpt-4o-mini")
+
+DASHBOARD_USERNAME = os.getenv("DASHBOARD_USERNAME", "autoace")
+DASHBOARD_PASSWORD = os.getenv("DASHBOARD_PASSWORD", "changeme")
+
+COST_PER_MINUTE_CEILING = 0.003
+GPT4O_MINI_INPUT_COST_PER_1M = 0.15
+GPT4O_MINI_OUTPUT_COST_PER_1M = 0.60
+
+LONG_SILENCE_THRESHOLD_SECONDS = 5.0
+BACKGROUND_NOISE_RMS_THRESHOLD = 0.002
+SILENCE_RMS_THRESHOLD = 0.01
+SUPPORTED_AUDIO_EXTENSIONS = {".wav", ".mp3", ".m4a", ".flac", ".ogg", ".webm"}

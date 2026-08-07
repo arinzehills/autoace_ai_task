@@ -1,0 +1,10 @@
+openai>=1.0.0
+openai-whisper
+librosa>=0.10.0
+soundfile
+numpy
+python-dotenv
+streamlit>=1.32.0
+streamlit-authenticator>=0.3.2
+pydantic>=2.0.0
+pandas
